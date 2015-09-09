@@ -1,12 +1,15 @@
 package com.example.android.sunshine;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,9 +33,28 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }  else if (id == R.id.action_location) {
+            showWeatherLocation();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showWeatherLocation()
+    {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String locationPref = sharedPref.getString(getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default));
+
+        Intent mapintent = new Intent(Intent.ACTION_VIEW);
+
+        mapintent.setData(Uri.parse("geo:0,0?q=" + locationPref));
+        if (mapintent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapintent);
+        }
     }
 }
