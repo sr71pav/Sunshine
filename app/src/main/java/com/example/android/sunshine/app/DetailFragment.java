@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
@@ -40,15 +41,25 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
             WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
+            WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherContract.WeatherEntry.COLUMN_DEGREES,
+            WeatherContract.WeatherEntry.COLUMN_PRESSURE,
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
     };
 
     // these constants correspond to the projection defined above, and must change if the
     // projection changes
-    private static final int COL_WEATHER_ID = 0;
+    private static final int COL_WEATHER_ID = 9;
     private static final int COL_WEATHER_DATE = 1;
     private static final int COL_WEATHER_DESC = 2;
     private static final int COL_WEATHER_MAX_TEMP = 3;
     private static final int COL_WEATHER_MIN_TEMP = 4;
+    private static final int COL_WEATHER_HUMIDITY = 5;
+    private static final int COL_WEATHER_WIND_SPEED = 6;
+    private static final int COL_WEATHER_DEGREES = 7;
+    private static final int COL_WEATHER_PRESSURE = 8;
+    private static final int COL_WEATHER_CONDITION_ID = 9;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -116,11 +127,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!data.moveToFirst()) { return; }
 
-        String dateString = Utility.formatDate(
-                data.getLong(COL_WEATHER_DATE));
+        long date = data.getLong(COL_WEATHER_DATE);
+        String dateString = Utility.formatDate(date);
+        String dayString = Utility.getDayName(getActivity(), date);
 
         String weatherDescription =
                 data.getString(COL_WEATHER_DESC);
+
+        int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
 
         boolean isMetric = Utility.isMetric(getActivity());
 
@@ -130,10 +144,33 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         String low = Utility.formatTemperature(getActivity(),
                 data.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
 
-        mForecast = String.format("%s - %s - %s/%s", dateString, weatherDescription, high, low);
+        double humidity = data.getDouble(COL_WEATHER_HUMIDITY);
 
-        TextView detailTextView = (TextView)getView().findViewById(R.id.detail_item_description);
-        detailTextView.setText(mForecast);
+        float windspeed = data.getFloat(COL_WEATHER_WIND_SPEED);
+        float winddirection = data.getFloat(COL_WEATHER_DEGREES);
+        String windStr = Utility.getFormattedWind(getActivity(), windspeed, winddirection);
+
+        double pressure = data.getDouble(COL_WEATHER_PRESSURE);
+
+        TextView tvDay = (TextView) getView().findViewById(R.id.detail_day_textview);
+        TextView tvDate = (TextView) getView().findViewById(R.id.detail_date_textview);
+        TextView tvMaxTemp = (TextView) getView().findViewById(R.id.detail_high_textview);
+        TextView tvMinTemp = (TextView) getView().findViewById(R.id.detail_low_textview);
+        TextView tvDesc = (TextView) getView().findViewById(R.id.detail_forecast_textview);
+        TextView tvHumid = (TextView) getView().findViewById(R.id.detail_humidity_textview);
+        TextView tvWind = (TextView) getView().findViewById(R.id.detail_wind_textview);
+        TextView tvPress = (TextView) getView().findViewById(R.id.detail_pressure_textview);
+        ImageView ivIcon = (ImageView) getView().findViewById(R.id.detail_icon);
+
+        tvDay.setText(dayString);
+        tvDate.setText(dateString);
+        tvMaxTemp.setText(high);
+        tvMinTemp.setText(low);
+        tvDesc.setText(weatherDescription);
+        tvHumid.setText(String.format(getActivity().getString(R.string.format_humidity), humidity));
+        tvWind.setText(windStr);
+        tvPress.setText(String.format(getActivity().getString(R.string.format_pressure), pressure));
+        ivIcon.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
 
         // If onCreateOptionsMenu has already happened, we need to update the share intent now.
         if (mShareActionProvider != null) {
