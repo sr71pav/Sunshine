@@ -199,6 +199,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mWindView.setText(windStr);
         mPressureView.setText(String.format(getActivity().getString(R.string.format_pressure), pressure));
         mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
+        mIconView.setContentDescription(weatherDescription);
 
         // If onCreateOptionsMenu has already happened, we need to update the share intent now.
         if (mShareActionProvider != null) {
