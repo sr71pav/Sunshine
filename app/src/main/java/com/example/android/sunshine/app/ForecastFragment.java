@@ -15,14 +15,9 @@
  */
 package com.example.android.sunshine.app;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -37,7 +32,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.service.SunshineService;
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -182,15 +177,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private void updateWeather() {
         //FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity());
-        String location = Utility.getPreferredLocation(getActivity());
-        //weatherTask.execute(location);
-        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
-        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
+//        String location = Utility.getPreferredLocation(getActivity());
+//        //weatherTask.execute(location);
+//        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+//        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
+//
+//        PendingIntent pi = PendingIntent.getBroadcast(getActivity(),0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
+//        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.set(AlarmManager.RTC_WAKEUP,
+//                SystemClock.elapsedRealtime() + 5000, pi);
 
-        PendingIntent pi = PendingIntent.getBroadcast(getActivity(),0, alarmIntent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP,
-                SystemClock.elapsedRealtime() + 5000, pi);
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     @Override
