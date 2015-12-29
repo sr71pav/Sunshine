@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 
 /**
@@ -190,14 +191,31 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         mFriendlyDateView.setText(dayString);
         mDateView.setText(dateString);
+
         mHighTempView.setText(high);
+        mHighTempView.setContentDescription(getString(R.string.a11y_high, high));
+
         mLowTempView.setText(low);
+        mLowTempView.setContentDescription(getString(R.string.a11y_low, low));
+
         mDescriptionView.setText(weatherDescription);
+        mDescriptionView.setContentDescription(getString(R.string.a11y_forecast, weatherDescription));
+
         mHumidityView.setText(String.format(getActivity().getString(R.string.format_humidity), humidity));
+        mHumidityView.setContentDescription(mHumidityView.getText());
+
         mWindView.setText(windStr);
+        mWindView.setContentDescription(mWindView.getText());
+
         mPressureView.setText(String.format(getActivity().getString(R.string.format_pressure), pressure));
-        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
-        mIconView.setContentDescription(weatherDescription);
+        mPressureView.setContentDescription(mPressureView.getText());
+
+        Glide.with(this)
+                .load(Utility.getArtUrlForWeatherCondition(getActivity(), weatherId))
+                .error(Utility.getArtResourceForWeatherCondition(weatherId))
+                .into(mIconView);
+
+        mIconView.setContentDescription(getString(R.string.a11y_forecast, weatherDescription));
 
         // If onCreateOptionsMenu has already happened, we need to update the share intent now.
         if (mShareActionProvider != null) {
